@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import os
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from actions.orchestrator import ActionOrchestrator
 from backgrounds.orchestrator import BackgroundOrchestrator
@@ -74,6 +74,7 @@ class CortexRuntime:
         self.simulator_task: Optional[Union[asyncio.Task, asyncio.Future]] = None
         self.action_task: Optional[Union[asyncio.Task, asyncio.Future]] = None
         self.background_task: Optional[Union[asyncio.Task, asyncio.Future]] = None
+        self.cortex_loop_task: Optional[asyncio.Task] = None
 
         if self.hot_reload:
             self.config_path = os.path.join(
@@ -105,22 +106,24 @@ class CortexRuntime:
 
             await self._start_orchestrators()
 
-            cortex_loop_task = asyncio.create_task(self._run_cortex_loop())
+            self.cortex_loop_task = asyncio.create_task(self._run_cortex_loop())
 
             while True:
                 try:
-                    awaitables = [cortex_loop_task]
+                    awaitables: List[Union[asyncio.Task, asyncio.Future]] = [
+                        self.cortex_loop_task
+                    ]
 
                     if self.hot_reload and self.config_watcher_task:
                         awaitables.append(self.config_watcher_task)
                     if self.input_listener_task and not self.input_listener_task.done():
                         awaitables.append(self.input_listener_task)
                     if self.simulator_task and not self.simulator_task.done():
-                        awaitables.append(self.simulator_task)  # type: ignore
+                        awaitables.append(self.simulator_task)
                     if self.action_task and not self.action_task.done():
-                        awaitables.append(self.action_task)  # type: ignore
+                        awaitables.append(self.action_task)
                     if self.background_task and not self.background_task.done():
-                        awaitables.append(self.background_task)  # type: ignore
+                        awaitables.append(self.background_task)
 
                     await asyncio.gather(*awaitables)
 
@@ -128,7 +131,7 @@ class CortexRuntime:
                     logging.debug("Tasks cancelled during config reload, continuing...")
                     await asyncio.sleep(0.1)
 
-                    if not cortex_loop_task.done():
+                    if not self.cortex_loop_task.done():
                         continue
                     else:
                         break
@@ -201,6 +204,8 @@ class CortexRuntime:
 
             await self._start_orchestrators()
 
+            self.cortex_loop_task = asyncio.create_task(self._run_cortex_loop())
+
             logging.info("Configuration reloaded successfully")
 
         except Exception as e:
@@ -214,6 +219,10 @@ class CortexRuntime:
         logging.debug("Stopping current orchestrators for reload...")
 
         tasks_to_cancel = []
+
+        if self.cortex_loop_task and not self.cortex_loop_task.done():
+            logging.debug("Cancelling cortex loop task")
+            tasks_to_cancel.append(self.cortex_loop_task)
 
         if self.input_listener_task and not self.input_listener_task.done():
             logging.debug("Cancelling input listener task")
@@ -243,6 +252,7 @@ class CortexRuntime:
             except Exception as e:
                 logging.warning(f"Error during orchestrator shutdown: {e}")
 
+        self.cortex_loop_task = None
         self.input_listener_task = None
         self.simulator_task = None
         self.action_task = None
@@ -280,6 +290,8 @@ class CortexRuntime:
             and not self.config_watcher_task.done()
         ):
             tasks_to_cancel.append(self.config_watcher_task)
+        if self.cortex_loop_task and not self.cortex_loop_task.done():
+            tasks_to_cancel.append(self.cortex_loop_task)
         if self.input_listener_task and not self.input_listener_task.done():
             tasks_to_cancel.append(self.input_listener_task)
         if self.simulator_task and not self.simulator_task.done():

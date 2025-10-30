@@ -19,7 +19,7 @@ app = typer.Typer()
 @app.command()
 def start(
     config_name: str,
-    hot_reload: bool = False,
+    hot_reload: bool = True,
     check_interval: int = 60,
     log_level: str = "INFO",
     log_to_file: bool = False,
@@ -32,7 +32,7 @@ def start(
     config_name : str
         The name of the configuration file (without extension) located in the config directory.
     hot_reload : bool, optional
-        Enable hot-reload of configuration files (default is False).
+        Enable hot-reload of configuration files (default is True).
     check_interval : int, optional
         Interval in seconds between config file checks when hot_reload is enabled (default is 60).
     log_level : str, optional

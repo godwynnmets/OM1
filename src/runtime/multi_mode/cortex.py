@@ -84,6 +84,7 @@ class ModeCortexRuntime:
         self.simulator_task: Optional[asyncio.Future] = None
         self.action_task: Optional[asyncio.Future] = None
         self.background_task: Optional[asyncio.Future] = None
+        self.cortex_loop_task: Optional[asyncio.Task] = None
 
         # Setup transition callback
         self.mode_manager.add_transition_callback(self._on_mode_transition)
@@ -154,6 +155,10 @@ class ModeCortexRuntime:
 
         tasks_to_cancel = []
 
+        if self.cortex_loop_task and not self.cortex_loop_task.done():
+            logging.debug("Cancelling cortex loop task")
+            tasks_to_cancel.append(self.cortex_loop_task)
+
         if self.input_listener_task and not self.input_listener_task.done():
             logging.debug("Cancelling input listener task")
             tasks_to_cancel.append(self.input_listener_task)
@@ -189,6 +194,7 @@ class ModeCortexRuntime:
         self.simulator_task = None
         self.action_task = None
         self.background_task = None
+        self.cortex_loop_task = None
 
         logging.debug("Orchestrators stopped successfully")
 
@@ -286,12 +292,12 @@ class ModeCortexRuntime:
                     self._check_config_changes()
                 )
 
-            cortex_loop_task = asyncio.create_task(self._run_cortex_loop())
+            self.cortex_loop_task = asyncio.create_task(self._run_cortex_loop())
 
             while True:
                 try:
                     awaitables: List[Union[asyncio.Task, asyncio.Future]] = [
-                        cortex_loop_task
+                        self.cortex_loop_task
                     ]
                     if (
                         self.hot_reload
@@ -317,7 +323,7 @@ class ModeCortexRuntime:
 
                     await asyncio.sleep(0.1)
 
-                    if not cortex_loop_task.done():
+                    if not self.cortex_loop_task.done():
                         continue
                     else:
                         break
@@ -514,6 +520,8 @@ class ModeCortexRuntime:
             await self._initialize_mode(current_mode)
 
             await self._start_orchestrators()
+
+            self.cortex_loop_task = asyncio.create_task(self._run_cortex_loop())
 
             logging.info(
                 f"Mode configuration reloaded successfully, active mode: {current_mode}"

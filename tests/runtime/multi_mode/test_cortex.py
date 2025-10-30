@@ -534,6 +534,7 @@ class TestModeCortexRuntimeHotReload:
             runtime._stop_current_orchestrators = AsyncMock()
             runtime._initialize_mode = AsyncMock()
             runtime._start_orchestrators = AsyncMock()
+            runtime._run_cortex_loop = AsyncMock()
 
             await runtime._reload_config()
 
@@ -574,6 +575,7 @@ class TestModeCortexRuntimeHotReload:
             runtime._stop_current_orchestrators = AsyncMock()
             runtime._initialize_mode = AsyncMock()
             runtime._start_orchestrators = AsyncMock()
+            runtime._run_cortex_loop = AsyncMock()
 
             await runtime._reload_config()
 
@@ -636,6 +638,7 @@ class TestModeCortexRuntimeHotReload:
             runtime._initialize_mode = AsyncMock()
             runtime._start_orchestrators = AsyncMock()
             runtime._cleanup_tasks = AsyncMock()
+            runtime._run_cortex_loop = AsyncMock()
 
             async def mock_cortex_loop():
                 await asyncio.sleep(0.01)
