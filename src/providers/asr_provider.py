@@ -6,6 +6,7 @@ from om1_utils import ws
 
 from .singleton import singleton
 
+from inputs.base import SensorConfig
 
 @singleton
 class ASRProvider:
@@ -27,6 +28,7 @@ class ASRProvider:
         chunk: Optional[int] = None,
         language_code: Optional[str] = None,
         remote_input: bool = False,
+        config: SensorConfig = SensorConfig(),
     ):
         """
         Initialize the ASR Provider.
@@ -48,10 +50,12 @@ class ASRProvider:
         remote_input : bool
             If True, the audio input is processed remotely; defaults to False.
         """
+        super().__init__(config)
+        self.asr_api_key = getattr(self.config, "asr_api_key", "")
         self.running: bool = False
-        self.ws_client: ws.Client = ws.Client(url=ws_url)
+        self.ws_client: ws.Client = ws.Client(url=ws_url,api_key=self.asr_api_key)
         self.stream_ws_client: Optional[ws.Client] = (
-            ws.Client(url=stream_url) if stream_url else None
+            ws.Client(url=stream_url, api_key=self.asr_api_key) if stream_url else None
         )
         self.audio_stream: AudioInputStream = AudioInputStream(
             rate=rate,
