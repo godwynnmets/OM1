@@ -7,7 +7,7 @@ from providers.yolo_detect_rtsp_provider import YoloDetectRTSPProvider
 class YoloDetectRTSP(Background):
     """
     Background task that runs YOLO object detection on an RTSP stream.
-    
+
     Publishes the latest frame + detections into IOProvider dynamic variables.
     """
 
