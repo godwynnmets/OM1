@@ -29,9 +29,8 @@ class LostAndFoundIngest(Background):
             f"(cfg_path: {cfg_path}, poll_interval: {poll_interval}s)"
         )
 
-    async def stop(self):
+    async def stop(self) -> None:
         try:
             self.ingest_provider.stop()
         except Exception:
             logging.exception("Error stopping LostAndFoundIngestProvider")
-        await super().stop()

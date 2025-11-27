@@ -37,9 +37,8 @@ class YoloDetectRTSP(Background):
             f"stride: {ingest_stride}, queue_max: {queue_max})"
         )
 
-    async def stop(self):
+    async def stop(self) -> None:
         try:
             self.detect_provider.stop()
         except Exception:
             logging.exception("Error stopping YoloDetectRTSPProvider")
-        await super().stop()
