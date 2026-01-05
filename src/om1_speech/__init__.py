@@ -33,12 +33,32 @@ class AudioInputStream:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.closed = False
+        self.running = False
+        self._audio_callback = None
+        self.remote_input = False
 
     def read(self, size: Optional[int] = None) -> bytes:
         """Read audio data from the input stream (returns empty bytes)."""
         if self.closed:
             raise RuntimeError("Stream is closed")
         return b""
+
+    def register_audio_data_callback(self, cb):
+        """Register a callback that will receive audio chunks."""
+        self._audio_callback = cb
+
+    def fill_buffer_remote(self, data: bytes) -> None:
+        """Fill the internal remote buffer (no-op for stub)."""
+        # For remote input tests, this method can be used to inject audio
+        pass
+
+    def start(self) -> None:
+        """Start the audio input stream (no-op)."""
+        self.running = True
+
+    def stop(self) -> None:
+        """Stop the audio input stream (no-op)."""
+        self.running = False
 
     def close(self) -> None:
         self.closed = True
