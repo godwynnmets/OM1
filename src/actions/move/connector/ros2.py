@@ -10,6 +10,29 @@ class MoveUnitreeSDKConnector(ActionConnector[ActionConfig, MoveInput]):
     def __init__(self, config: ActionConfig):
         super().__init__(config)
 
+        # Optionally initialize a Unitree SportClient if available. This allows
+        # the generic ROS2 connector to perform hardware-specific behaviors such
+        # as handshakes when available (e.g., `shake paw`). Initialization is
+        # best-effort and failures are logged without preventing the connector
+        # from operating in simulation or other hardware backends.
+        self.sport_client = None
+        try:
+            from unitree.unitree_sdk2py.go2.sport.sport_client import SportClient
+
+            try:
+                self.sport_client = SportClient()
+                self.sport_client.SetTimeout(10.0)
+                self.sport_client.Init()
+                self.sport_client.StopMove()
+                logging.info("Sport client initialized for ROS2 move connector")
+            except Exception as e:
+                logging.warning(f"Could not initialize SportClient: {e}")
+                self.sport_client = None
+        except Exception:
+            # Unitree SDK not available in this environment; skip sport client
+            # initialization so the connector remains functional in other setups.
+            self.sport_client = None
+
     async def connect(self, output_interface: MoveInput) -> None:
         """
         Connect the input protocol to the move action via Unitree SDK.
@@ -30,6 +53,14 @@ class MoveUnitreeSDKConnector(ActionConnector[ActionConfig, MoveInput]):
             new_msg["move"] = "dance"
         elif output_interface.action == "shake paw":
             new_msg["move"] = "shake paw"
+            # If a sport client is available (Unitree), send a friendly handshake
+            # command to the robot in addition to the generic ROS2 message.
+            try:
+                if getattr(self, "sport_client", None) is not None:
+                    self.sport_client.Hello()
+                    logging.info("Issued SportClient.Hello() for shake paw")
+            except Exception as e:
+                logging.warning(f"Failed to send sport handshake: {e}")
         elif output_interface.action == "walk":
             new_msg["move"] = "walk"
         elif output_interface.action == "walk back":
