@@ -33,12 +33,6 @@
   },
   "agent_actions": [
     {
-      "name": "move",
-      "llm_label": "move",
-      "implementation": "passthrough",
-      "connector": "ros2"
-    },
-    {
       "name": "speak",
       "llm_label": "speak",
       "implementation": "passthrough",
@@ -47,12 +41,6 @@
         "voice_id": "i4CzbCVWoqvD0P1QJCUL",
         "silence_rate": 20
       }
-    },
-    {
-      "name": "face",
-      "llm_label": "emotion",
-      "implementation": "passthrough",
-      "connector": "ros2"
     }
   ]
 }
