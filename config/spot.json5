@@ -41,6 +41,11 @@
         "voice_id": "i4CzbCVWoqvD0P1QJCUL",
         "silence_rate": 20
       }
+    },
+    {
+      "name": "move",
+      "llm_label": "move",
+      "connector": "ros2"
     }
   ]
 }
