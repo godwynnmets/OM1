@@ -65,6 +65,28 @@ def test_spot_config():
     with open(config_path, "r") as f:
         raw_config = json5.load(f)
 
+    # Check for top-level keys
+    assert "version" in raw_config
+    assert isinstance(raw_config["version"], str)
+
+    assert "hertz" in raw_config
+    assert isinstance(raw_config["hertz"], (int, float))
+
+    assert "name" in raw_config
+    assert isinstance(raw_config["name"], str)
+
+    assert "api_key" in raw_config
+    assert isinstance(raw_config["api_key"], str)
+
+    assert "system_prompt_base" in raw_config
+    assert isinstance(raw_config["system_prompt_base"], str)
+
+    assert "system_governance" in raw_config
+    assert isinstance(raw_config["system_governance"], str)
+
+    assert "system_prompt_examples" in raw_config
+    assert isinstance(raw_config["system_prompt_examples"], str)
+
     agent_inputs = raw_config.get("agent_inputs", [])
     assert isinstance(agent_inputs, list)
 
