@@ -23,6 +23,9 @@
     {
       type: "VLMVila",
     },
+    {
+      type: "GoogleASRInput"
+    },
   ],
   cortex_llm: {
     type: "OpenAILLM",
