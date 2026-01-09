@@ -44,7 +44,7 @@ class StepAudioTTSProvider:
             "text": text,
         }
 
-    def add_pending_message(self, message: Union[str, dict]):
+    def add_pending_message(self, message: Union[str, dict], spk: str, out_wav: str):
         """
         Add a pending message to the TTS provider.
 
@@ -52,6 +52,10 @@ class StepAudioTTSProvider:
         ----------
         message : Union[str, dict]
             The message to be added, typically containing text and TTS parameters.
+        spk : str
+            The speaker to use for TTS.
+        out_wav : str
+            The output wav file.
         """
         if not self.running:
             logging.warning(
@@ -62,7 +66,7 @@ class StepAudioTTSProvider:
         if isinstance(message, str):
             message = self.create_pending_message(message)
         
-        self._audio_stream.synthesize(message["text"], spk="long", out_wav="out.wav")
+        self._audio_stream.synthesize(message["text"], spk=spk, out_wav=out_wav)
 
     def get_pending_message_count(self) -> int:
         """
