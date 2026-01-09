@@ -12,6 +12,9 @@
     },
     {
       "type": "FaceEmotionCapture"
+    },
+    {
+      "type": "GoogleASRInput"
     }
   ],
   "simulators": [
