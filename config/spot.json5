@@ -36,11 +36,7 @@
       "name": "speak",
       "llm_label": "speak",
       "implementation": "passthrough",
-      "connector": "elevenlabs_tts",
-      "config": {
-        "voice_id": "i4CzbCVWoqvD0P1QJCUL",
-        "silence_rate": 20
-      }
+      "connector": "step_audio_tts"
     },
     {
       "name": "move",
