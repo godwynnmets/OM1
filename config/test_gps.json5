@@ -13,6 +13,9 @@
       config: {
         "serial_port": "/dev/cu.usbmodem101"
       }
+    },
+    {
+      "type": "GoogleASRInput"
     }
   ],
   "cortex_llm": {
