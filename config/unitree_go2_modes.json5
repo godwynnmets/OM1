@@ -538,6 +538,9 @@
         },
         {
           "type":"FacePresence"
+        },
+        {
+          "type": "GoogleASRInput"
         }
       ],
       "action_execution_mode": "concurrent",
