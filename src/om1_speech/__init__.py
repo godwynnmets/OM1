@@ -5,6 +5,19 @@ project can import them during development. Replace or extend these with the
 real implementation when available.
 """
 from typing import Optional, Any
+import logging
+import os
+import json
+
+import torch
+import torchaudio
+
+# Make sure you have installed modelscope, SpeechT5 and transformers
+from modelscope.hub.snapshot_download import snapshot_download
+from modelscope.models.audio.tts.speech_adapter import SpeechAdapter
+from modelscope.utils.audio.tts_exceptions import NoValidRequestException
+from cosyvoice.cli.cosyvoice import CosyVoice
+from cosyvoice.utils.file_utils import save_wav
 
 
 class AudioOutputStream:
@@ -78,4 +91,51 @@ class AudioRTSPInputStream(AudioInputStream):
         self.rtsp_url = rtsp_url
 
 
-__all__ = ["AudioOutputStream", "AudioInputStream", "AudioRTSPInputStream"]
+class StepAudioTTS:
+    def __init__(self, model_dir, device=None):
+        self.device = device if device else ('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model_dir = model_dir
+        self.cosyvoice = CosyVoice(model_dir=self.model_dir, device=self.device)
+        self.cosyvoice.list_avaliable_spks()
+        self.model_id = 'damo/speech_adapter-v2-16k-paimo_8k'
+        try:
+            self.model_dir = snapshot_download(self.model_id,
+                                          cache_dir='/tmp/modelscope',
+                                          ignore_file_pattern=[r'\..*py$'])
+        except Exception as e:
+            logging.warning(f'snapshot_download failed, using last version, error: {e}')
+        self.speech_adapter = SpeechAdapter(self.model_dir, device=self.device)
+        self.speakers = {}
+
+    def register_speakers(self, spks_json):
+        with open(spks_json, 'r') as f:
+            spks_info = json.load(f)
+        for spk, spk_file in spks_info.items():
+            if not os.path.exists(spk_file):
+                logging.warning(f'spk_file {spk_file} not found, download from modelscope')
+                try:
+                    spk_file_new = snapshot_download('manyeyes/manyeyes_cosyvoice_backup',
+                                                     cache_dir='/tmp/modelscope',
+                                                     allow_file_pattern=f'spk_new/{os.path.basename(spk_file)}')
+                    spk_file = spk_file_new
+                except Exception as e:
+                    logging.error(f'failed to download spk file, error: {e}')
+                    continue
+            self.speakers[spk] = self.cosyvoice.get_spk_emb(spk_file)
+
+    def synthesize(self, text, spk, out_wav):
+        if spk not in self.speakers:
+            raise NoValidRequestException(f'speaker {spk} not registered')
+        if text.startswith('[') and text.endswith(']'):
+            try:
+                output = self.cosyvoice.inference_sft(text, spk, self.speakers[spk])
+            except NoValidRequestException:
+                logging.warning('Execute sft inference failed, maybe the text is not a valid sft request')
+                output = self.cosyvoice.inference_zero_shot(text, spk, self.speakers[spk])
+        else:
+            output = self.cosyvoice.inference_zero_shot(text, spk, self.speakers[spk])
+        output = self.speech_adapter.forward(output['tts_speech'])
+        save_wav(output, out_wav)
+
+
+__all__ = ["AudioOutputStream", "AudioInputStream", "AudioRTSPInputStream", "StepAudioTTS"]
