@@ -95,7 +95,7 @@ class SpeakStepAudioTTSConnector(
         ):
             self.conversation_provider.store_robot_message(output_interface.action)
 
-        self.tts.add_pending_message(pending_message)
+        self.tts.add_pending_message(pending_message, self.config.spk, self.config.out_wav)
 
 
     def stop(self) -> None:
