@@ -14,6 +14,9 @@
         "use_zenoh": false,
         "URID": "",     // only needed for Zenoh
       }
+    },
+    {
+      "type": "GoogleASRInput"
     }
   ],
   "cortex_llm": {
