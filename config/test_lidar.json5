@@ -18,6 +18,9 @@
         "sensor_mounting_angle": 172.0,
         "angles_blanked": [[-180.0, -170.0], [160, 180]]
       }
+    },
+    {
+      "type": "GoogleASRInput"
     }
   ],
   "cortex_llm": {
