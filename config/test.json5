@@ -22,6 +22,9 @@
     {
       "type": "Rtk",
     },
+    {
+      "type": "GoogleASRInput"
+    }
   ],
   "cortex_llm": {
     "type": "OpenAILLM",
