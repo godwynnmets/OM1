@@ -33,6 +33,9 @@
     },
     {
       "type": "SimplePaths"
+    },
+    {
+      "type": "GoogleASRInput"
     }
   ],
   "cortex_llm": {
