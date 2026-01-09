@@ -22,7 +22,8 @@ class StepAudioTTSProvider:
         Initialize the TTS provider.
         """
         self.running: bool = False
-        self._audio_stream: StepAudioTTS = StepAudioTTS()
+        self._audio_stream: StepAudioTTS = StepAudioTTS(model_dir="/tmp/modelscope")
+        self._audio_stream.register_speakers('speakers/speakers_info.json')
 
     def create_pending_message(self, text: str) -> dict:
         """
@@ -61,7 +62,7 @@ class StepAudioTTSProvider:
         if isinstance(message, str):
             message = self.create_pending_message(message)
         
-        self._audio_stream.synthesize(message["text"])
+        self._audio_stream.synthesize(message["text"], spk="long", out_wav="out.wav")
 
     def get_pending_message_count(self) -> int:
         """
