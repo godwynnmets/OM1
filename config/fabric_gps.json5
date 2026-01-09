@@ -33,6 +33,9 @@
         origin_yaw_deg: 105,
       },
     },
+    {
+      type: "GoogleASRInput"
+    }
   ],
   simulators: [
     {
