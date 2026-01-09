@@ -289,6 +289,9 @@
         },
         {
           "type":"FacePresence"
+        },
+        {
+          "type": "GoogleASRInput"
         }
       ],
       "cortex_llm": {
@@ -427,6 +430,9 @@
         {
           "type":"FacePresence"
         },
+        {
+          "type": "GoogleASRInput"
+        }
       ],
       "action_execution_mode": "concurrent",
       "agent_actions": [
