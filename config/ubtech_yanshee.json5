@@ -11,7 +11,9 @@
     {
       "type": "UbtechASRInput"
     },
-
+    {
+      "type": "GoogleASRInput"
+    }
   ],
   "cortex_llm": {
     "type": "OpenAILLM",
