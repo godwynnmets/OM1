@@ -32,6 +32,9 @@
     },
     {
       "type": "TurtleBot4Battery"
+    },
+    {
+      "type": "GoogleASRInput"
     }
   ],
   "cortex_llm": {
