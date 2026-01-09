@@ -28,8 +28,13 @@ class SpeakStepAudioTTSConfig(ActionConfig):
 
     Parameters:
     ----------
+    spk : str
+        The speaker to use for TTS.
+    out_wav : str
+        The output wav file.
     """
-    pass
+    spk: str = Field(default="long", description="The speaker to use for TTS.")
+    out_wav: str = Field(default="out.wav", description="The output wav file.")
 
 
 class SpeakStepAudioTTSConnector(
