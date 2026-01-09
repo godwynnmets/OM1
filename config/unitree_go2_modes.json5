@@ -129,6 +129,9 @@
         },
         {
           "type":"FacePresence"
+        },
+        {
+          "type": "GoogleASRInput"
         }
       ],
       "cortex_llm": {
