@@ -36,12 +36,11 @@
       "name": "speak",
       "llm_label": "speak",
       "implementation": "passthrough",
-      "connector": "step_audio_tts"
-    },
-    {
-      "name": "move",
-      "llm_label": "move",
-      "connector": "ros2"
+      "connector": "elevenlabs_tts",
+      "config": {
+        "voice_id": "i4CzbCVWoqvD0P1QJCUL",
+        "silence_rate": 20
+      }
     }
   ]
 }
