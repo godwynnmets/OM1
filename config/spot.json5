@@ -27,7 +27,12 @@
   "cortex_llm": {
     "type": "OpenAILLM",
     "config": {
-      "base_url": "",
+      // To use a local LLM (e.g., Ollama, LM Studio), set the base_url
+      // to your local server's endpoint.
+      // Example for Ollama (ensure you add '/v1' to the end):
+      "base_url": "http://localhost:11434/v1",
+      "api_key": "ollama", // For Ollama, the api_key can be any non-empty string.
+      "model": "llama3",   // Specify the model you have downloaded in Ollama.
       "agent_name": "Iris",
       "history_length": 10
     }
