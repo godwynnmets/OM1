@@ -61,18 +61,18 @@ def assert_action_classes_exist(action_config):
 def test_spot_config():
     """Test that the spot.json5 config file can be loaded and is valid."""
     config_path = os.path.join(os.path.dirname(__file__), "../../config/spot.json5")
-    
+
     with open(config_path, "r") as f:
         raw_config = json5.load(f)
 
-    # Check for top-level keys
+    # Check for top-level keys and specific values
     assert "version" in raw_config
     assert isinstance(raw_config["version"], str)
 
-    assert "hertz" in raw_config
+    assert raw_config.get("hertz") == 1
     assert isinstance(raw_config["hertz"], (int, float))
 
-    assert "name" in raw_config
+    assert raw_config.get("name") == "spot_speak"
     assert isinstance(raw_config["name"], str)
 
     assert "api_key" in raw_config
@@ -87,25 +87,36 @@ def test_spot_config():
     assert "system_prompt_examples" in raw_config
     assert isinstance(raw_config["system_prompt_examples"], str)
 
+    # Validate agent_inputs
     agent_inputs = raw_config.get("agent_inputs", [])
     assert isinstance(agent_inputs, list)
-
-    cortex_llm = raw_config.get("cortex_llm", {})
-    assert isinstance(cortex_llm, dict)
-    assert "type" in cortex_llm, f"'type' key missing in cortex_llm of spot.json5"
-    assert get_llm_class(cortex_llm["type"]) is not None
-
-    simulators = raw_config.get("simulators", [])
-    assert isinstance(simulators, list)
-
-    agent_actions = raw_config.get("agent_actions", [])
-    assert isinstance(agent_actions, list)
-
+    assert len(agent_inputs) > 0, "agent_inputs should not be empty"
+    assert agent_inputs[0]["type"] == "GoogleASRInput"
     for input_config in agent_inputs:
         assert_input_class_exists(input_config)
 
+    # Validate cortex_llm
+    cortex_llm = raw_config.get("cortex_llm", {})
+    assert isinstance(cortex_llm, dict)
+    assert cortex_llm.get("type") == "OpenAILLM", f"'type' key in cortex_llm is not OpenAILLM"
+    assert get_llm_class(cortex_llm["type"]) is not None
+
+    # Validate simulators
+    simulators = raw_config.get("simulators", [])
+    assert isinstance(simulators, list)
+    assert len(simulators) > 0, "simulators should not be empty"
+    assert simulators[0]["type"] == "WebSim"
     for simulator in simulators:
         assert get_simulator_class(simulator["type"]) is not None
 
+    # Validate agent_actions
+    agent_actions = raw_config.get("agent_actions", [])
+    assert isinstance(agent_actions, list)
+    assert len(agent_actions) > 0, "agent_actions should not be empty"
+    speak_action = agent_actions[0]
+    assert speak_action["name"] == "speak"
+    assert speak_action["llm_label"] == "speak"
+    assert speak_action["implementation"] == "passthrough"
+    assert speak_action["connector"] == "elevenlabs_tts"
     for action in agent_actions:
         assert_action_classes_exist(action)
